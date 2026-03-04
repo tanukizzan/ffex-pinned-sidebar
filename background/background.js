@@ -55,6 +55,49 @@ async function restoreActiveSite() {
 restoreActiveSite();
 
 // ============================================================
+// Helpers
+// ============================================================
+
+/**
+ * Return true only for http/https URLs.
+ * Blocks javascript:, data:, file: and any other scheme.
+ */
+function isSafeUrl(url) {
+  try {
+    const { protocol } = new URL(url);
+    return protocol === "https:" || protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Resolve the active site from storage, update _activeSite, and return it.
+ * Always performs a fresh storage read; used when _activeSite is null.
+ */
+async function resolveActiveSite() {
+  const { pinnedSites = [], lastVisitedSiteId, settings = {} } =
+    await browser.storage.local.get(["pinnedSites", "lastVisitedSiteId", "settings"]);
+
+  let site = null;
+
+  if (settings.openBehavior === "default" && settings.defaultSiteId) {
+    site = pinnedSites.find((s) => s.id === settings.defaultSiteId) || null;
+  }
+
+  if (!site && lastVisitedSiteId) {
+    site = pinnedSites.find((s) => s.id === lastVisitedSiteId) || null;
+  }
+
+  if (!site && pinnedSites.length > 0) {
+    site = pinnedSites[0];
+  }
+
+  _activeSite = site;
+  return site;
+}
+
+// ============================================================
 // Message handling
 // ============================================================
 
@@ -66,27 +109,8 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(_activeSite);
         return false;
       }
-
-      browser.storage.local
-        .get(["pinnedSites", "lastVisitedSiteId", "settings"])
-        .then(({ pinnedSites = [], lastVisitedSiteId, settings = {} }) => {
-          let site = null;
-
-          if (settings.openBehavior === "default" && settings.defaultSiteId) {
-            site = pinnedSites.find((s) => s.id === settings.defaultSiteId) || null;
-          }
-
-          if (!site && lastVisitedSiteId) {
-            site = pinnedSites.find((s) => s.id === lastVisitedSiteId) || null;
-          }
-
-          if (!site && pinnedSites.length > 0) {
-            site = pinnedSites[0];
-          }
-
-          _activeSite = site;
-          sendResponse(site);
-        });
+      // _activeSite is null — resolve from storage asynchronously.
+      resolveActiveSite().then(sendResponse);
       return true; // async
     }
 
@@ -117,6 +141,12 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // ---- Popup asks sidebar to navigate (first pin added while sidebar was
     //      showing the empty-state placeholder) ----
     case "navigateSidebar": {
+      // Validate the URL before forwarding to the sidebar.
+      // Only http/https is permitted; javascript:, data:, etc. are rejected.
+      if (!isSafeUrl(message.url)) {
+        sendResponse({ ok: false, error: "invalid url" });
+        return false;
+      }
       for (const tabId of _sidebarTabIds) {
         browser.tabs.sendMessage(tabId, {
           type: "navigateSidebar",

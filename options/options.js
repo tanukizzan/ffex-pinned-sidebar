@@ -12,7 +12,7 @@
   // ---- Initialise i18n and theme first ----
   await I18n.init();
   await Theme.init();
-  applyI18n();
+  I18n.applyToDocument();
 
   // ---- DOM refs ----
   const langRadios        = document.querySelectorAll('input[name="language"]');
@@ -87,7 +87,7 @@
       urlInput.value = "";
       hideError();
       sites = await Storage.getPinnedSites();
-      populateDefaultSiteDropdown(sites, (await Storage.getSettings()).defaultSiteId);
+      populateDefaultSiteDropdown(sites, settings.defaultSiteId);
       renderPinnedSitesList(sites);
       showStatus(I18n.t("optionsSiteAdded"));
     } catch {
@@ -102,25 +102,15 @@
   Storage.onChange(async (changes) => {
     if (changes.pinnedSites) {
       sites = changes.pinnedSites.newValue || [];
-      const s = await Storage.getSettings();
-      populateDefaultSiteDropdown(sites, s.defaultSiteId);
+      populateDefaultSiteDropdown(sites, settings.defaultSiteId);
       renderPinnedSitesList(sites);
+    }
+    if (changes.settings) {
+      settings = { ...settings, ...(changes.settings.newValue || {}) };
     }
   });
 
   // ---- Helpers ----
-
-  /** Apply data-i18n attributes to all matching elements. */
-  function applyI18n() {
-    document.querySelectorAll("[data-i18n]").forEach((el) => {
-      el.textContent = I18n.t(el.dataset.i18n);
-    });
-    // Placeholder attributes
-    const urlEl = document.getElementById("url-input");
-    if (urlEl) urlEl.placeholder = I18n.t("optionsAddPlaceholder");
-    // html lang attribute
-    document.documentElement.lang = I18n.getLanguage();
-  }
 
   function toggleDefaultPicker(behavior) {
     defaultSitePicker.style.display = behavior === "default" ? "block" : "none";
@@ -141,7 +131,10 @@
     pinnedSitesList.innerHTML = "";
 
     if (sitesList.length === 0) {
-      pinnedSitesList.innerHTML = `<p class="options-hint">${I18n.t("optionsNoPins")}</p>`;
+      const hint = document.createElement("p");
+      hint.className = "options-hint";
+      hint.textContent = I18n.t("optionsNoPins");
+      pinnedSitesList.appendChild(hint);
       return;
     }
 
@@ -174,8 +167,7 @@
       removeBtn.addEventListener("click", async () => {
         await PinManager.removeSite(site.id);
         sites = await Storage.getPinnedSites();
-        const s = await Storage.getSettings();
-        populateDefaultSiteDropdown(sites, s.defaultSiteId);
+        populateDefaultSiteDropdown(sites, settings.defaultSiteId);
         renderPinnedSitesList(sites);
         showStatus(I18n.t("optionsSiteRemoved"));
       });

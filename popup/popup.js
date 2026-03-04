@@ -12,7 +12,7 @@
   // ---- Initialise i18n and theme first ----
   await I18n.init();
   await Theme.init();
-  applyI18n();
+  I18n.applyToDocument();
 
   // ---- DOM refs ----
   const siteList      = document.getElementById("site-list");
@@ -144,18 +144,6 @@
   });
 
   // ---- Helpers ----
-
-  function applyI18n() {
-    document.querySelectorAll("[data-i18n]").forEach((el) => {
-      el.textContent = I18n.t(el.dataset.i18n);
-    });
-    document.querySelectorAll("[data-i18n-title]").forEach((el) => {
-      el.title = I18n.t(el.dataset.i18nTitle);
-    });
-    const urlEl = document.getElementById("url-input");
-    if (urlEl) urlEl.placeholder = I18n.t("popupAddPlaceholder");
-    document.documentElement.lang = I18n.getLanguage();
-  }
 
   function showError(msg) {
     errorMsg.textContent = msg;
