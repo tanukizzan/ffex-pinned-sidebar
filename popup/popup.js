@@ -90,10 +90,28 @@
   await render();
 
   // ---- Add site ----
-  async function addSite() {
+  //
+  // When the sidebar is on the empty-state placeholder (no pins), we must call
+  // sidebarAction.open() synchronously inside the user-action context, before
+  // any await.  emptyState.style.display tells us the current state without
+  // needing an async round-trip to storage, because render() already set it.
+
+  function onAddClick() {
     const raw = urlInput.value.trim();
     if (!raw) return;
 
+    // Sidebar was showing the placeholder ⟹ open it now, while we are still
+    // in the synchronous user-action context.
+    const sidebarWasEmpty = emptyState.style.display !== "none";
+    if (sidebarWasEmpty) {
+      browser.sidebarAction.open();
+    }
+
+    // Continue asynchronously.
+    addSiteAsync(raw, sidebarWasEmpty);
+  }
+
+  async function addSiteAsync(raw, sidebarWasEmpty) {
     try {
       const site = await PinManager.addSite(raw);
       if (!site) {
@@ -103,13 +121,22 @@
       urlInput.value = "";
       hideError();
       await render();
+
+      if (sidebarWasEmpty && site) {
+        // Tell the background which site is now active, then ask it to forward
+        // a navigate command to the sidebar panel (which is still showing the
+        // empty-state placeholder because location.replace() was never called).
+        await browser.runtime.sendMessage({ type: "setActiveSite", siteId: site.id });
+        browser.runtime.sendMessage({ type: "navigateSidebar", url: site.url });
+        window.close();
+      }
     } catch {
       showError(I18n.t("popupErrorInvalidUrl"));
     }
   }
 
-  addBtn.addEventListener("click", addSite);
-  urlInput.addEventListener("keydown", (e) => { if (e.key === "Enter") addSite(); });
+  addBtn.addEventListener("click", onAddClick);
+  urlInput.addEventListener("keydown", (e) => { if (e.key === "Enter") onAddClick(); });
 
   // ---- Settings ----
   openOptionsBtn.addEventListener("click", () => {

@@ -4,8 +4,10 @@
  * Responsibilities:
  *   1. Track which site is currently active in the sidebar (in-memory).
  *   2. Handle messages from popup and sidebar:
- *      - "getActiveSite" → return the current active site object
- *      - "setActiveSite" → update active site, forward "navigate" to sidebar
+ *      - "getActiveSite"      → return the current active site object
+ *      - "setActiveSite"      → update active site
+ *      - "registerSidebarTab" → remember the sidebar's tab ID
+ *      - "navigateSidebar"    → forward a navigate command to the sidebar tab
  *   3. Initialise default storage on first install.
  *
  * Architecture note:
@@ -21,6 +23,15 @@
 // ============================================================
 
 let _activeSite = null; // { id, url, title, favicon } | null
+
+// Set of tab IDs that belong to the sidebar panel.
+// Updated each time sidebar.html loads and sends "registerSidebarTab".
+const _sidebarTabIds = new Set();
+
+// Clean up tab IDs when a tab closes.
+browser.tabs.onRemoved.addListener((tabId) => {
+  _sidebarTabIds.delete(tabId);
+});
 
 // Restore active site from storage when background wakes
 async function restoreActiveSite() {
@@ -40,7 +51,7 @@ restoreActiveSite();
 // Message handling
 // ============================================================
 
-browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   switch (message.type) {
     // ---- Popup / sidebar asks: which site is active? ----
     case "getActiveSite": {
@@ -87,6 +98,30 @@ browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         sendResponse({ ok: true });
       });
       return true; // async
+    }
+
+    // ---- Sidebar registers its tab ID ----
+    case "registerSidebarTab": {
+      if (sender.tab) {
+        _sidebarTabIds.add(sender.tab.id);
+      }
+      sendResponse({ ok: true });
+      return false;
+    }
+
+    // ---- Popup asks sidebar to navigate (first pin added while sidebar was
+    //      showing the empty-state placeholder) ----
+    case "navigateSidebar": {
+      for (const tabId of _sidebarTabIds) {
+        browser.tabs.sendMessage(tabId, {
+          type: "navigateSidebar",
+          url: message.url,
+        }).catch(() => {
+          _sidebarTabIds.delete(tabId);
+        });
+      }
+      sendResponse({ ok: true });
+      return false;
     }
 
     default:
