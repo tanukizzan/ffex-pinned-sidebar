@@ -168,7 +168,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // Toolbar button: toggle the sidebar
 // ============================================================
 
-browser.browserAction.onClicked.addListener(() => {
+browser.action.onClicked.addListener(() => {
   browser.sidebarAction.toggle();
 });
 
