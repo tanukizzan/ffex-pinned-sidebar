@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pinned Sidebar - Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="options-container">
+    <h1 class="options-title" data-i18n="optionsTitle"></h1>
+
+    <!-- Language -->
+    <section class="options-section">
+      <h2 class="options-section-title" data-i18n="optionsLanguageSection"></h2>
+      <p class="options-description" data-i18n="optionsLanguageDesc"></p>
+      <div class="options-radio-group">
+        <label class="options-radio-label">
+          <input type="radio" name="language" value="en">
+          <span data-i18n="optionsLangEn"></span>
+        </label>
+        <label class="options-radio-label">
+          <input type="radio" name="language" value="ja">
+          <span data-i18n="optionsLangJa"></span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Appearance -->
+    <section class="options-section">
+      <h2 class="options-section-title" data-i18n="optionsThemeSection"></h2>
+      <p class="options-description" data-i18n="optionsThemeDesc"></p>
+      <div class="options-radio-group">
+        <label class="options-radio-label">
+          <input type="radio" name="theme" value="auto">
+          <span data-i18n="optionsThemeAuto"></span>
+        </label>
+        <label class="options-radio-label">
+          <input type="radio" name="theme" value="light">
+          <span data-i18n="optionsThemeLight"></span>
+        </label>
+        <label class="options-radio-label">
+          <input type="radio" name="theme" value="dark">
+          <span data-i18n="optionsThemeDark"></span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Startup Behavior -->
+    <section class="options-section">
+      <h2 class="options-section-title" data-i18n="optionsStartupSection"></h2>
+      <p class="options-description" data-i18n="optionsStartupDesc"></p>
+
+      <div class="options-radio-group">
+        <label class="options-radio-label">
+          <input type="radio" name="openBehavior" value="lastVisited">
+          <span data-i18n="optionsLastVisited"></span>
+        </label>
+        <label class="options-radio-label">
+          <input type="radio" name="openBehavior" value="default">
+          <span data-i18n="optionsDefaultSite"></span>
+        </label>
+      </div>
+
+      <div id="default-site-picker" class="options-sub-field" style="display:none;">
+        <label for="default-site-select" data-i18n="optionsDefaultSiteLabel"></label>
+        <select id="default-site-select"></select>
+      </div>
+    </section>
+
+    <!-- Pinned Sites Management -->
+    <section class="options-section">
+      <h2 class="options-section-title" data-i18n="optionsPinnedSection"></h2>
+
+      <div id="pinned-sites-list" class="pinned-sites-list"></div>
+
+      <!-- Add site -->
+      <div class="add-site-form">
+        <input id="url-input" type="url" autocomplete="off">
+        <button id="add-btn" data-i18n="optionsAddBtn"></button>
+      </div>
+      <div id="error-msg" class="error-msg" style="display:none;"></div>
+    </section>
+
+    <!-- Status -->
+    <div id="status-message" class="status-message" style="display:none;"></div>
+  </div>
+
+  <script src="../lib/storage.js"></script>
+  <script src="../lib/i18n.js"></script>
+  <script src="../lib/theme.js"></script>
+  <script src="../components/pin-manager.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

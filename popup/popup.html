@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pinned Sidebar</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Header -->
+  <div class="popup-header">
+    <span class="popup-title" data-i18n="appName"></span>
+    <button id="open-options" class="icon-btn" data-i18n-title="popupSettingsTitle">&#9881;</button>
+  </div>
+
+  <!-- Pinned sites list -->
+  <ul id="site-list" class="site-list"></ul>
+
+  <!-- Empty state -->
+  <div id="empty-state" class="empty-state" style="display:none;">
+    <p data-i18n="popupEmptyLine1"></p>
+    <p data-i18n="popupEmptyLine2"></p>
+  </div>
+
+  <!-- Add site form -->
+  <div class="add-form">
+    <input id="url-input" type="url" autocomplete="off">
+    <button id="add-btn" data-i18n="popupAddBtn"></button>
+  </div>
+
+  <div id="error-msg" class="error-msg" style="display:none;"></div>
+
+  <script src="../lib/storage.js"></script>
+  <script src="../lib/i18n.js"></script>
+  <script src="../lib/theme.js"></script>
+  <script src="../components/pin-manager.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

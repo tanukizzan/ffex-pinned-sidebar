@@ -1,0 +1,242 @@
+/* ========================================================
+   sidebar.css - Sidebar layout and component styles
+   ======================================================== */
+
+/* ---- Reset & base ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  background: #f9f9fb;
+  color: #1a1a2e;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- Pin bar (top-fixed) ---- */
+.pin-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e6;
+  min-height: 36px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.pin-bar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  position: relative;
+}
+
+.pin-bar-icon:hover {
+  background: #e8e8ee;
+}
+
+.pin-bar-icon.active {
+  background: #d0d0e0;
+  box-shadow: inset 0 0 0 1.5px #4A90D9;
+}
+
+.pin-bar-icon img {
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.pin-bar-icon-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  background: #4A90D9;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pin-bar-icon.dragging {
+  opacity: 0.4;
+}
+
+.pin-bar-icon.drag-over {
+  box-shadow: inset 0 0 0 2px #4A90D9;
+}
+
+/* Add button */
+.pin-bar-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1.5px dashed #b0b0c0;
+  border-radius: 6px;
+  background: transparent;
+  color: #888;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.pin-bar-add:hover {
+  border-color: #4A90D9;
+  color: #4A90D9;
+  background: #eef4fd;
+}
+
+/* ---- Context menu ---- */
+.pin-bar-context-menu {
+  position: fixed;
+  background: #fff;
+  border: 1px solid #d0d0d8;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  z-index: 1000;
+  min-width: 120px;
+}
+
+.pin-bar-context-menu-item {
+  display: block;
+  width: 100%;
+  padding: 6px 14px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 12px;
+  color: #333;
+  cursor: pointer;
+}
+
+.pin-bar-context-menu-item:hover {
+  background: #f0f0f5;
+  color: #c0392b;
+}
+
+/* ---- Site viewer ---- */
+.viewer-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+#site-viewer-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* ---- Empty state ---- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 24px;
+  color: #888;
+}
+
+.empty-state-icon {
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state-text {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #666;
+}
+
+.empty-state-hint {
+  font-size: 12px;
+  color: #999;
+}
+
+.empty-state-hint strong {
+  color: #4A90D9;
+}
+
+/* ---- Dark mode support (follows Firefox theme) ---- */
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background: #2b2a33;
+    color: #f9f9fb;
+  }
+
+  .pin-bar {
+    background: #38383d;
+    border-bottom-color: #4a4a52;
+  }
+
+  .pin-bar-icon:hover {
+    background: #52525e;
+  }
+
+  .pin-bar-icon.active {
+    background: #4a4a57;
+    box-shadow: inset 0 0 0 1.5px #4A90D9;
+  }
+
+  .pin-bar-add {
+    border-color: #5a5a66;
+    color: #aaa;
+  }
+
+  .pin-bar-add:hover {
+    border-color: #4A90D9;
+    color: #4A90D9;
+    background: #3a3a4a;
+  }
+
+  .pin-bar-context-menu {
+    background: #42414d;
+    border-color: #5a5a66;
+  }
+
+  .pin-bar-context-menu-item {
+    color: #e0e0e0;
+  }
+
+  .pin-bar-context-menu-item:hover {
+    background: #52525e;
+    color: #e74c3c;
+  }
+
+  .empty-state-text {
+    color: #ccc;
+  }
+
+  .empty-state-hint {
+    color: #888;
+  }
+}
