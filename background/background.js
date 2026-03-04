@@ -12,9 +12,9 @@
  *
  * Architecture note:
  *   The sidebar panel redirects itself to the target site URL using
- *   window.location.replace(), so no iframe / webRequest header manipulation
- *   is needed.  Sites open natively in the sidebar panel, just like any
- *   normal tab — bypassing X-Frame-Options and CSP restrictions entirely.
+ *   window.location.replace(), so no iframe manipulation is needed.
+ *   Sites open natively in the sidebar panel, just like any normal tab —
+ *   bypassing X-Frame-Options and CSP restrictions entirely.
  */
 "use strict";
 
@@ -24,7 +24,11 @@
 
 let _activeSite = null; // { id, url, title, favicon } | null
 
-// Set of tab IDs that belong to the sidebar panel.
+// ============================================================
+// Sidebar tab ID registry
+// ============================================================
+
+// Set of tab IDs that belong to sidebar panels.
 // Updated each time sidebar.html loads and sends "registerSidebarTab".
 const _sidebarTabIds = new Set();
 
@@ -33,7 +37,10 @@ browser.tabs.onRemoved.addListener((tabId) => {
   _sidebarTabIds.delete(tabId);
 });
 
-// Restore active site from storage when background wakes
+// ============================================================
+// Startup
+// ============================================================
+
 async function restoreActiveSite() {
   const lastId = await browser.storage.local
     .get("lastVisitedSiteId")
@@ -60,7 +67,6 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return false;
       }
 
-      // Fall back to settings-based selection
       browser.storage.local
         .get(["pinnedSites", "lastVisitedSiteId", "settings"])
         .then(({ pinnedSites = [], lastVisitedSiteId, settings = {} }) => {
@@ -91,7 +97,6 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         _activeSite = site;
 
         if (site) {
-          // Persist as last visited
           await browser.storage.local.set({ lastVisitedSiteId: site.id });
         }
 
@@ -149,6 +154,8 @@ browser.runtime.onInstalled.addListener(async (details) => {
       settings: {
         openBehavior: "lastVisited",
         defaultSiteId: null,
+        language: "en",
+        theme: "auto",
       },
     });
     console.log("Pinned Sidebar: installed with default settings.");
