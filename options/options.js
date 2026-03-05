@@ -117,7 +117,11 @@
   }
 
   function populateDefaultSiteDropdown(sitesList, selectedId) {
-    defaultSiteSelect.innerHTML = `<option value="">${I18n.t("optionsDefaultSitePlaceholder")}</option>`;
+    defaultSiteSelect.innerHTML = "";
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = I18n.t("optionsDefaultSitePlaceholder");
+    defaultSiteSelect.appendChild(placeholder);
     sitesList.forEach((site) => {
       const opt = document.createElement("option");
       opt.value = site.id;
